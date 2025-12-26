@@ -1,5 +1,7 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import { connectDB } from './presistence';
+import authRouter from './presentation/routers/auth';
 
 const app = express();
 
@@ -8,8 +10,12 @@ async function startServer() {
     // external dependencies connection
     await connectDB();
 
-    // routes
+    // middlewares
     app.use(express.json());
+    app.use(cookieParser()); // Parse cookies from request headers
+
+    // routes
+    app.use('/auth', authRouter);
 
     // app start
     app.listen(3000, () => {

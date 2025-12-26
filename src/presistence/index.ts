@@ -23,3 +23,7 @@ export async function connectDB() {
 export function getDB() {
   return client.db(MONGO_DB);
 }
+
+export function getMongoClient() {
+  return client;
+}

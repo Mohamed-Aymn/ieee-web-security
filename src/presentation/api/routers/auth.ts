@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { login, logout, getSession } from "../controllers/auth";
-import { optionalAuth } from "../middleware/session";
+import { optionalAuth } from "../../middleware/session";
 
 const router = Router();
 

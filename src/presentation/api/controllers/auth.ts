@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { getDB } from "../../presistence";
+import { getDB } from "../../../presistence";
 import bcrypt from "bcryptjs";
-import { createSession, deleteSession } from "../../services/session";
+import { createSession, deleteSession } from "../../../services/session";
 
 // Cookie security settings
 const getCookieOptions = () => {
@@ -14,6 +14,7 @@ const getCookieOptions = () => {
     path: '/', // Cookie available for entire site
   };
 };
+
 
 export const login = async (req: Request, res: Response): Promise<Response> => {
   const filter = req.body.filter;
@@ -88,4 +89,3 @@ export const getSession = async (req: Request, res: Response): Promise<Response>
 
   return res.status(401).json({ authenticated: false, message: "Not authenticated" });
 };
-

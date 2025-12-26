@@ -1,0 +1,19 @@
+services:
+  mongodb:
+    image: mongo:7 # pre-determined version
+    container_name: ieee-web-security-mongodb
+    restart: unless-stopped
+
+    ports:
+      - "27017:27017"
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ieee-volunteer
+      MONGO_INITDB_ROOT_PASSWORD: ieee-password
+      MONGO_INITDB_DATABASE: ieee
+
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

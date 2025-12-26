@@ -24,7 +24,6 @@ async function startServer() {
     app.use('/api/auth', authRouter);
     app.use('', pagesRouter)
 
-
     // app start
     app.listen(3000, () => {
       console.log('Server is running on port 3000');

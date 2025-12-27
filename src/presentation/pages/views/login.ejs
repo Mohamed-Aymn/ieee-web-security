@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
     <style>
         * {
@@ -12,7 +13,8 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -125,27 +127,28 @@
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <h1>Login</h1>
-        
+
         <div id="errorMessage" class="error-message"></div>
         <div id="successMessage" class="success-message"></div>
 
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required autocomplete="username">
+                <input type="text" id="username" name="username" required autocomplete="username" />
             </div>
 
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" required autocomplete="email">
+                <input type="email" id="email" name="email" required autocomplete="email" />
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required autocomplete="current-password">
+                <input type="password" id="password" name="password" required autocomplete="current-password" />
             </div>
 
             <button type="submit" id="submitBtn">Login</button>
@@ -153,82 +156,82 @@
     </div>
 
     <script>
-        const form = document.getElementById('loginForm');
-        const errorMessage = document.getElementById('errorMessage');
-        const successMessage = document.getElementById('successMessage');
-        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById("loginForm");
+        const errorMessage = document.getElementById("errorMessage");
+        const successMessage = document.getElementById("successMessage");
+        const submitBtn = document.getElementById("submitBtn");
 
         function showError(message) {
             errorMessage.textContent = message;
-            errorMessage.classList.add('show');
-            successMessage.classList.remove('show');
+            errorMessage.classList.add("show");
+            successMessage.classList.remove("show");
         }
 
         function showSuccess(message) {
             successMessage.textContent = message;
-            successMessage.classList.add('show');
-            errorMessage.classList.remove('show');
+            successMessage.classList.add("show");
+            errorMessage.classList.remove("show");
         }
 
         function hideMessages() {
-            errorMessage.classList.remove('show');
-            successMessage.classList.remove('show');
+            errorMessage.classList.remove("show");
+            successMessage.classList.remove("show");
         }
 
-        form.addEventListener('submit', async (e) => {
+        form.addEventListener("submit", async (e) => {
             e.preventDefault();
             hideMessages();
 
-            const username = document.getElementById('username').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
+            const username = document.getElementById("username").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
 
             if (!username || !email || !password) {
-                showError('Please fill in all fields');
+                showError("Please fill in all fields");
                 return;
             }
 
             // Construct filter object for the API
             const filter = {
                 username: username,
-                email: email
+                email: email,
             };
 
             submitBtn.disabled = true;
-            form.classList.add('loading');
+            form.classList.add("loading");
 
             try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
+                const response = await fetch("/api/auth/login", {
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',
+                        "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
                         filter: filter,
-                        password: password
-                    })
+                        password: password,
+                    }),
                 });
 
                 const data = await response.json();
 
-                if (response.ok) {
+                if (response.ok && data.username) {
                     showSuccess(`Welcome, ${data.username}! Redirecting...`);
                     // Redirect after successful login
                     setTimeout(() => {
-                        window.location.href = '/';
+                        window.location.href = `/?name=${encodeURIComponent(data.username)}`;
                     }, 1500);
                 } else {
-                    showError(data.message || data.error || 'Login failed');
+                    showError(data.message || data.error || "Login failed");
                 }
             } catch (error) {
-                showError('Network error. Please try again.');
-                console.error('Login error:', error);
+                showError("Network error. Please try again.");
+                console.error("Login error:", error);
             } finally {
                 submitBtn.disabled = false;
-                form.classList.remove('loading');
+                form.classList.remove("loading");
             }
         });
     </script>
 </body>
-</html>
 
+</html>

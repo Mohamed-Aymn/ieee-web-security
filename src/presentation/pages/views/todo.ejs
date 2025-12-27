@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .todo-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      justify-content: center;
+    }
+
+    .action-btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+    }
+
+    .todo-list {
+      margin-bottom: 20px;
+      min-height: 200px;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: #fafafa;
+      transition: all 0.3s;
+    }
+
+    .todo-item:hover {
+      border-color: #667eea;
+      background: #f5f5f5;
+    }
+
+    .todo-item.completed {
+      opacity: 0.6;
+    }
+
+    .todo-item.completed .todo-text {
+      text-decoration: line-through;
+      color: #999;
+    }
+
+    .todo-checkbox {
+      width: 24px;
+      height: 24px;
+      margin-right: 15px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .todo-text {
+      flex: 1;
+      font-size: 16px;
+      color: #333;
+      word-break: break-word;
+    }
+
+    .todo-text-input {
+      flex: 1;
+      font-size: 16px;
+      color: #333;
+      border: 2px solid #667eea;
+      border-radius: 6px;
+      padding: 8px 12px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .todo-delete {
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+      font-size: 18px;
+      margin-left: 10px;
+    }
+
+    .todo-delete:hover {
+      background: #cc0000;
+      transform: scale(1.1);
+    }
+
+    .todo-delete:active {
+      transform: scale(0.95);
+    }
+
+    .add-todo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .add-todo-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .add-todo-btn:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .add-todo-btn:active {
+      transform: translateY(0) scale(1);
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #999;
+      padding: 40px 20px;
+      font-size: 16px;
+    }
+
+    .error-message {
+      background: #fee;
+      color: #c33;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      font-size: 14px;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .success-message {
+      background: #efe;
+      color: #3c3;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+      font-size: 14px;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="todo-container">
+    <h1>Todo App</h1>
+
+    <div id="errorMessage" class="error-message"></div>
+    <div id="successMessage" class="success-message"></div>
+
+    <div class="action-buttons">
+      <button class="action-btn" id="importBtn">Import</button>
+      <button class="action-btn" id="exportBtn">Export</button>
+    </div>
+
+    <div class="todo-list" id="todoList">
+      <!-- Todo items will be inserted here -->
+    </div>
+
+    <div class="add-todo-container">
+      <button class="add-todo-btn" id="addTodoBtn" title="Add new task">+</button>
+    </div>
+  </div>
+
+  <script>
+    // Todo state management
+    let todos = [];
+    let todoIdCounter = 1;
+
+    // DOM elements
+    const todoList = document.getElementById("todoList");
+    const addTodoBtn = document.getElementById("addTodoBtn");
+    const importBtn = document.getElementById("importBtn");
+    const exportBtn = document.getElementById("exportBtn");
+    const errorMessage = document.getElementById("errorMessage");
+    const successMessage = document.getElementById("successMessage");
+
+    // Load todos from localStorage on page load
+    function loadTodos() {
+      const savedTodos = localStorage.getItem("todos");
+      if (savedTodos) {
+        todos = JSON.parse(savedTodos);
+        if (todos.length > 0) {
+          todoIdCounter = Math.max(...todos.map(t => t.id)) + 1;
+        }
+        renderTodos();
+      }
+    }
+
+    // Save todos to localStorage
+    function saveTodos() {
+      localStorage.setItem("todos", JSON.stringify(todos));
+    }
+
+    // Render all todos
+    function renderTodos() {
+      if (todos.length === 0) {
+        todoList.innerHTML = '<div class="empty-state">No tasks yet. Click the + button to add one!</div>';
+        return;
+      }
+
+      todoList.innerHTML = todos.map(todo => `
+        <div class="todo-item ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
+          <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} 
+                 onchange="toggleTodo(${todo.id})" />
+          <span class="todo-text">${escapeHtml(todo.text)}</span>
+          <button class="todo-delete" onclick="deleteTodo(${todo.id})" title="Delete task">🗑️</button>
+        </div>
+      `).join('');
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Add new todo
+    function addTodo() {
+      const text = prompt("Enter a new task:");
+      if (text && text.trim()) {
+        const newTodo = {
+          id: todoIdCounter++,
+          text: text.trim(),
+          completed: false,
+          createdAt: new Date().toISOString()
+        };
+        todos.push(newTodo);
+        saveTodos();
+        renderTodos();
+        showSuccess("Task added successfully!");
+      }
+    }
+
+    // Toggle todo completion
+    function toggleTodo(id) {
+      const todo = todos.find(t => t.id === id);
+      if (todo) {
+        todo.completed = !todo.completed;
+        saveTodos();
+        renderTodos();
+      }
+    }
+
+    // Delete todo
+    function deleteTodo(id) {
+      if (confirm("Are you sure you want to delete this task?")) {
+        todos = todos.filter(t => t.id !== id);
+        saveTodos();
+        renderTodos();
+        showSuccess("Task deleted successfully!");
+      }
+    }
+
+    // Show error message
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.add("show");
+      successMessage.classList.remove("show");
+      setTimeout(() => {
+        errorMessage.classList.remove("show");
+      }, 3000);
+    }
+
+    // Show success message
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successMessage.classList.add("show");
+      errorMessage.classList.remove("show");
+      setTimeout(() => {
+        successMessage.classList.remove("show");
+      }, 2000);
+    }
+
+    // Export todos (frontend only - no implementation)
+    function exportTodos() {
+      showSuccess("Export feature coming soon!");
+    }
+
+    // Import todos (frontend only - no implementation)
+    function importTodos() {
+      showSuccess("Import feature coming soon!");
+    }
+
+    // Event listeners
+    addTodoBtn.addEventListener("click", addTodo);
+    exportBtn.addEventListener("click", exportTodos);
+    importBtn.addEventListener("click", importTodos);
+
+    // Make functions globally available for inline handlers
+    window.toggleTodo = toggleTodo;
+    window.deleteTodo = deleteTodo;
+
+    // Initialize
+    loadTodos();
+  </script>
+</body>
+
+</html>

@@ -185,11 +185,6 @@
                 return;
             }
 
-            // Construct filter object for the API
-            const filter = {
-                username: username,
-            };
-
             submitBtn.disabled = true;
             form.classList.add("loading");
 
@@ -200,7 +195,7 @@
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        filter: filter,
+                        username: username,
                         password: password,
                     }),
                 });

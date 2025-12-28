@@ -8,7 +8,7 @@ const getCookieOptions = () => {
   const cookieSecure = process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production';
   return {
     httpOnly: true, // Prevents XSS attacks by making cookie inaccessible to JavaScript
-    secure: cookieSecure, // HTTPS only - prevents cookie transmission over insecure connections
+    secure: cookieSecure, // HT TPS only - prevents cookie transmission over insecure connections
     sameSite: 'strict' as const, // CSRF protection - strict mode (most secure)
     maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
     path: '/', // Cookie available for entire site
@@ -17,14 +17,12 @@ const getCookieOptions = () => {
 
 
 export const login = async (req: Request, res: Response): Promise<Response> => {
-  const filter = req.body.filter;
+  const { username } = req.body;
 
   try {
-    // ❌ DANGEROUS: we take the JSON filter *as provided*
-    // and pass it straight into findOne().
     const user = await getDB()
       .collection("users")
-      .findOne(filter);
+      .findOne({username: username});
 
     if (!user) {
       return res.status(401).json({ message: "No user found" });

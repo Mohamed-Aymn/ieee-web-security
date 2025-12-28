@@ -17,12 +17,12 @@ const getCookieOptions = () => {
 
 
 export const login = async (req: Request, res: Response): Promise<Response> => {
-  const { username } = req.body;
+  const { username, securityQuestion } = req.body;
 
   try {
     const user = await getDB()
       .collection("users")
-      .findOne({username: username});
+      .findOne({username: username, securityQuestion: securityQuestion});
 
     if (!user) {
       return res.status(401).json({ message: "No user found" });
@@ -35,7 +35,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       // Create session in database
       const sessionToken = await createSession(
         user._id.toString(),
-        user.username
+        user.username 
       );
 
       // Set secure cookie manually

@@ -32,7 +32,8 @@ async function seedDatabase() {
     const result = await usersCollection.insertOne({
       username: "admin",
       passwordHash: passwordHash,
-      email: "admin@admin.admin"
+      email: "admin@admin.admin",
+      securityQuestion: "banana bread"
     });
 
     console.log("User inserted successfully:", result.insertedId);

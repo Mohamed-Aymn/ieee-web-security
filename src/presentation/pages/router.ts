@@ -1,15 +1,15 @@
 import { Router } from "express";
-import { showHomePage } from "./controllers/home";
-import { showLoginPage } from "./controllers/login";
-import { showTodoPage } from "./controllers/todo";
-import { showRegisterPage } from "./controllers/register";
 import { requireAuth } from "../middleware/session";
+import { showHomePageController } from "./controllers/home";
+import { showLoginPageController } from "./controllers/login";
+import { showRegisterPageController } from "./controllers/register";
+import { showTodoPageController } from "./controllers/todo";
 
 const pagesRouter = Router();
 
-pagesRouter.get("/", showHomePage);
-pagesRouter.get("/login", showLoginPage);
-pagesRouter.get("/register", showRegisterPage);
-pagesRouter.get("/todo", requireAuth ,showTodoPage);
+pagesRouter.get("/", showHomePageController);
+pagesRouter.get("/login", showLoginPageController);
+pagesRouter.get("/register", showRegisterPageController);
+pagesRouter.get("/todo", requireAuth, showTodoPageController);
 
 export default pagesRouter;

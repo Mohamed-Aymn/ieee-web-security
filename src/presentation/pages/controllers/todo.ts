@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
 
-export const showTodoPage = (req: Request, res: Response): void => {
+export const showTodoPageController = (req: Request, res: Response): void => {
   res.render('todo');
 };

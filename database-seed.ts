@@ -41,21 +41,22 @@ async function seedDatabase() {
       console.log("User inserted successfully:", result.insertedId);
     }
 
+    const code = `INVITE-${crypto.randomBytes(6).toString('hex').toUpperCase()}`
     // Create invite code
     // Check if invite code already exists
     const existingInviteCode = await inviteCodesCollection.findOne({
-      code: { $regex: /^INVITE-/i }
+      code: code
     });
 
     if (existingInviteCode) {
       console.log("Invite code already exists, skipping insertion");
     } else {
       // Insert invite code
-      const inviteCodeResult = await inviteCodesCollection.insertOne({
-        code: `INVITE-${crypto.randomBytes(6).toString('hex').toUpperCase()}`,
+      await inviteCodesCollection.insertOne({
+        code: code
       });
 
-      console.log("Invite code inserted successfully:", inviteCodeResult.insertedId);
+      console.log("Invite code inserted successfully:", code);
     }
 
   } catch (error) {

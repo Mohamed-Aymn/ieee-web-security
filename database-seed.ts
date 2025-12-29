@@ -1,14 +1,18 @@
 import { connectDB, getDB, getMongoClient } from "./src/presistence";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 async function seedDatabase() {
+  let client;
   try {
     // Connect to database
     await connectDB();
     console.log("Connected to database");
 
+    client = getMongoClient();
     const db = getDB();
     const usersCollection = db.collection("users");
+    const inviteCodesCollection = db.collection("invitecodes");
 
     // Check if user already exists
     const existingUser = await usersCollection.findOne({
@@ -20,33 +24,51 @@ async function seedDatabase() {
 
     if (existingUser) {
       console.log("User already exists, skipping insertion");
-      return;
+    } else {
+      // Hash the password at runtime
+      const password = "123456";
+      const passwordHash = await bcrypt.hash(password, 10);
+      console.log("Password hashed successfully");
+
+      // Insert user if it doesn't exist
+      const result = await usersCollection.insertOne({
+        username: "admin",
+        passwordHash: passwordHash,
+        email: "admin@admin.admin",
+        securityQuestion: "banana bread"
+      });
+
+      console.log("User inserted successfully:", result.insertedId);
     }
 
-    // Hash the password at runtime
-    const password = "123456";
-    const passwordHash = await bcrypt.hash(password, 10);
-    console.log("Password hashed successfully");
-
-    // Insert user if it doesn't exist
-    const result = await usersCollection.insertOne({
-      username: "admin",
-      passwordHash: passwordHash,
-      email: "admin@admin.admin",
+    // Create invite code
+    // Check if invite code already exists
+    const existingInviteCode = await inviteCodesCollection.findOne({
+      code: { $regex: /^INVITE-/i }
     });
 
-    console.log("User inserted successfully:", result.insertedId);
+    if (existingInviteCode) {
+      console.log("Invite code already exists, skipping insertion");
+    } else {
+      // Insert invite code
+      const inviteCodeResult = await inviteCodesCollection.insertOne({
+        code: `INVITE-${crypto.randomBytes(6).toString('hex').toUpperCase()}`,
+      });
+
+      console.log("Invite code inserted successfully:", inviteCodeResult.insertedId);
+    }
+
   } catch (error) {
     console.error("Error seeding database:", error);
     process.exit(1);
   } finally {
     // Close database connection
-    const client = getMongoClient();
-    await client.close();
-    console.log("Database connection closed");
+    if (client) {
+      await client.close();
+      console.log("Database connection closed");
+    }
   }
 }
 
 // Run the seed function
-seedDatabase();
-
+seedDatabase();  

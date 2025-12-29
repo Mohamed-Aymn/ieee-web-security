@@ -381,15 +381,61 @@
     }
 
     // Import todos
-    async function importTodos() {
-      const xml = await fetch("/api/todo/exportXML")
-      // Logic to import xml here (making it vulnrable to XXE)
+    async function importTodosXML() {
+      // Create file input element
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.xml';
+      
+      fileInput.onchange = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const xmlContent = e.target.result;
+          
+          try {
+            const response = await fetch('/api/todo/importXML', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ xml: xmlContent })
+            });
+            
+            if (!response.ok) throw new Error('Import failed');
+            
+            const result = await response.json();
+            
+            // Merge imported todos with existing ones
+            todos = [...todos, ...result.todos];
+            
+            // Update ID counter
+            if (todos.length > 0) {
+              todoIdCounter = Math.max(...todos.map(t => t.id)) + 1;
+            }
+            
+            saveTodos();
+            renderTodos();
+            showSuccess(`Successfully imported ${result.count} tasks!`);
+            
+          } catch (error) {
+            showError('Import failed: ' + error.message);
+          }
+        };
+        
+        reader.readAsText(file);
+      };
+      
+      // Trigger file selection dialog
+      fileInput.click();
     }
 
     // Event listeners
     addTodoBtn.addEventListener("click", addTodo);
     exportBtn.addEventListener("click", exportTodosXML);
-    importBtn.addEventListener("click", importTodos);
+    importBtn.addEventListener("click", importTodosXML);
 
     // Make functions globally available for inline handlers
     window.toggleTodo = toggleTodo;

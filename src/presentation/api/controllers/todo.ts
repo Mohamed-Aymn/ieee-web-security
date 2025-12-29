@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
+import * as libxmljs from 'libxmljs2';  // <-- Just change the import to libxmljs2
 
-// WARNING: This is intentionally vulnerable to XXE
 export const exportXMLController = (req: Request, res: Response) => {
   try {
     const todos = req.body;
@@ -30,52 +30,36 @@ export const exportXMLController = (req: Request, res: Response) => {
   }
 };
 
-// Vulnerable XML import with XXE
 export const importXMLController = (req: Request, res: Response) => {
   try {
     const xmlData = req.body.xml;
-
-    if (!xmlData) {
-      return res.status(400).send('No XML data provided');
+    if (!xmlData || typeof xmlData !== 'string') {
+      return res.status(400).send('No valid XML data provided');
     }
 
-    const parseString = require('xml2js').parseString;
-
-    parseString(xmlData, {
-      explicitArray: false,
-      // DANGER: Not disabling external entities
-      // This would normally be set to false in secure code: ignoreDecl: true
-    }, (err: any, result: any) => {
-      if (err) {
-        return res.status(400).send('Invalid XML format');
-      }
-
-      if (!result || !result.todos) {
-        return res.status(400).send('Invalid XML structure');
-      }
-
-      let todoArray = [];
-      if (Array.isArray(result.todos.todo)) {
-        todoArray = result.todos.todo;
-      } else if (result.todos.todo) {
-        todoArray = [result.todos.todo];
-      }
-
-      const importedTodos = todoArray.map((todo: any) => ({
-        id: parseInt(todo.id) || Date.now(),
-        text: todo.text || '',
-        completed: todo.completed === 'true',
-        createdAt: todo.createdAt || new Date().toISOString()
-      }));
-
-      res.json({
-        message: 'Import successful',
-        count: importedTodos.length,
-        todos: importedTodos
-      });
+    const xmlDoc = libxmljs.parseXml(xmlData, {
+      noent: true,
+      noblanks: true,
+      nocdata: true
     });
 
-  } catch (error) {
-    res.status(500).send('Error processing XML');
+    // Simple & safe: always get an array
+    const todosElements = (xmlDoc.root()?.find('//todo') || []) as any[];
+
+    const importedTodos = todosElements.map((todoElement: any) => ({
+      id: parseInt(todoElement.get('id')?.text() || '', 10) || Date.now(),
+      text: todoElement.get('text')?.text() || '',
+      completed: todoElement.get('completed')?.text() === 'true',
+      createdAt: todoElement.get('createdAt')?.text() || new Date().toISOString()
+    }));
+
+    res.json({
+      message: 'Import successful',
+      count: importedTodos.length,
+      todos: importedTodos
+    });
+
+  } catch (error: any) {
+    res.status(400).send('Invalid XML or parsing error: ' + error.message);
   }
 };

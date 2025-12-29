@@ -1,17 +1,10 @@
-check `express-session` and `connect-mongo` to reduce tones of boilerplate in this codebase.
+# IEEE Web Security Lab
 
----
+## Development
 
-NoSQL injection:
+Main topics:
 
-```
-POST /auth/login
-{
-  "filter": {
-    "username": { "$ne": null }
-  },
-  "password": "whatever"
-}
-```
+- Clean architecture.
+- Session vs token-based auth.
 
----
+> Note: check `express-session` and `connect-mongo` to reduce tones of boilerplate in this codebase.

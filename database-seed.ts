@@ -33,7 +33,6 @@ async function seedDatabase() {
       username: "admin",
       passwordHash: passwordHash,
       email: "admin@admin.admin",
-      securityQuestion: "banana bread"
     });
 
     console.log("User inserted successfully:", result.insertedId);

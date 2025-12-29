@@ -348,19 +348,47 @@
       }, 2000);
     }
 
-    // Export todos (frontend only - no implementation)
-    function exportTodos() {
-      showSuccess("Export feature coming soon!");
+    function downloadFile(content, fileName, contentType) {
+      const blob = new Blob([content], { type: contentType });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
     }
 
-    // Import todos (frontend only - no implementation)
-    function importTodos() {
-      showSuccess("Import feature coming soon!");
+    async function exportTodosXML() {
+      try {
+        const response = await fetch("/api/todo/exportXML", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(todos)
+        });
+        
+        if (!response.ok) throw new Error('Export failed');
+        
+        const xml = await response.text();
+        downloadFile(xml, 'todos.xml', 'application/xml');
+        showSuccess('Todos exported successfully as XML!');
+      } catch (error) {
+        showError('Export failed: ' + error.message);
+      }
+    }
+
+    // Import todos
+    async function importTodos() {
+      const xml = await fetch("/api/todo/exportXML")
+      // Logic to import xml here (making it vulnrable to XXE)
     }
 
     // Event listeners
     addTodoBtn.addEventListener("click", addTodo);
-    exportBtn.addEventListener("click", exportTodos);
+    exportBtn.addEventListener("click", exportTodosXML);
     importBtn.addEventListener("click", importTodos);
 
     // Make functions globally available for inline handlers

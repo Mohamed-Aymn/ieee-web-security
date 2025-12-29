@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import { connectDB } from './presistence';
 import authRouter from './presentation/api/routers/auth';
 import meRouter from './presentation/api/routers/me';
+import todoRouter from './presentation/api/routers/todo';
 import pagesRouter from './presentation/pages/router';
 
 const app = express();
@@ -24,6 +25,7 @@ async function startServer() {
     // routes
     app.use('/api/auth', authRouter);
     app.use('/api/me', meRouter);
+    app.use('/api/todo', todoRouter);
     app.use('', pagesRouter)
 
     // app start

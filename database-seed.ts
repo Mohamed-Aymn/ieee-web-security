@@ -41,7 +41,7 @@ async function seedDatabase() {
       console.log("User inserted successfully:", result.insertedId);
     }
 
-    const code = `INVITE-${crypto.randomBytes(6).toString('hex').toUpperCase()}`
+    let code = `INVITE-${crypto.randomBytes(6).toString('hex').toUpperCase()}`
     // Create invite code
     // Check if invite code already exists
     const existingInviteCode = await inviteCodesCollection.findOne({
@@ -49,15 +49,15 @@ async function seedDatabase() {
     });
 
     if (existingInviteCode) {
-      console.log("Invite code already exists, skipping insertion");
-    } else {
-      // Insert invite code
-      await inviteCodesCollection.insertOne({
-        code: code
-      });
-
-      console.log("Invite code inserted successfully:", code);
+      code = `INVITE-${crypto.randomBytes(6).toString('hex').toUpperCase()}`
     }
+
+    // Insert invite code
+    await inviteCodesCollection.insertOne({
+      code: code
+    });
+
+    console.log("Invite code inserted successfully:", code);
 
   } catch (error) {
     console.error("Error seeding database:", error);

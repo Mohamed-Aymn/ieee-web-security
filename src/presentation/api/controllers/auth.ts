@@ -51,6 +51,57 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
   }
 };
 
+export const register = async (req: Request, res: Response): Promise<Response> => {
+  const { username, email, password, inviteCode } = req.body;
+
+  try {
+    const db = getDB();
+    const usersCollection = db.collection("users");
+    const inviteCodesCollection = db.collection("invitecodes");
+
+    // Check if user already exists
+    const existingUser = await usersCollection.findOne({
+      $or: [
+        { username: username },
+        { email: email }
+      ]
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // Check invite code
+    const inviteCodeDoc = await inviteCodesCollection.findOne({ 
+      code: inviteCode 
+    });
+
+    if (!inviteCodeDoc) {
+      return res.status(400).json({ message: "Invalid invite code" });
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Create user
+    const result = await usersCollection.insertOne({
+      username,
+      email,
+      passwordHash,
+      createdAt: new Date()
+    });
+
+    return res.json({ 
+      success: true, 
+      username: username,
+      userId: result.insertedId.toString()
+    });
+
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
 export const logout = async (req: Request, res: Response): Promise<Response> => {
   try {
     const token = req.cookies?.sessionId;

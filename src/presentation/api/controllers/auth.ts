@@ -17,12 +17,12 @@ const getCookieOptions = () => {
 
 
 export const login = async (req: Request, res: Response): Promise<Response> => {
-  const { username, securityQuestion } = req.body;
+  const { username } = req.body;
 
   try {
     const user = await getDB()
       .collection("users")
-      .findOne({username: username, securityQuestion: securityQuestion});
+      .findOne({username: username});
 
     if (!user) {
       return res.status(401).json({ message: "No user found" });

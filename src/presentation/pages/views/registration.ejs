@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
+    <title>Register</title>
     <style>
         * {
             margin: 0;
@@ -23,13 +23,13 @@
             padding: 20px;
         }
 
-        .login-container {
+        .register-container {
             background: white;
             border-radius: 12px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             padding: 40px;
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
         }
 
         h1 {
@@ -68,6 +68,17 @@
         input[type="email"]:focus,
         input[type="password"]:focus {
             border-color: #667eea;
+        }
+
+        .password-requirements {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .password-requirements ul {
+            margin-left: 20px;
+            margin-top: 5px;
         }
 
         button {
@@ -126,56 +137,107 @@
             pointer-events: none;
         }
 
-        .registration-link {
+        .login-link {
             text-align: center;
             margin-top: 20px;
             color: #666;
             font-size: 14px;
         }
 
-        .registration-link a {
+        .login-link a {
             color: #667eea;
             text-decoration: none;
             font-weight: 500;
         }
 
-        .registration-link a:hover {
+        .login-link a:hover {
             text-decoration: underline;
         }
+
+        .field-info {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            cursor: pointer;
+        }
+
+        .toggle-password {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 0;
+            margin-top: 5px;
+            display: inline-block;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
-    <div class="login-container">
-        <h1>Login</h1>
+    <div class="register-container">
+        <h1>Create Account</h1>
 
         <div id="errorMessage" class="error-message"></div>
         <div id="successMessage" class="success-message"></div>
 
-        <form id="loginForm">
+        <form id="registerForm">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required autocomplete="username" />
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required autocomplete="current-password" />
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required autocomplete="email" />
             </div>
 
-            <button type="submit" id="submitBtn">Login</button>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="new-password" />
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password" />
+            </div>
+  
+            <div class="form-group">
+                <label for="inviteCode">Invite Code *</label>
+                <input type="text" id="inviteCode" name="inviteCode" required 
+                       placeholder="e.g., INVITE-A1B2C3D4" />
+                <div class="field-info">You need a valid invite code to register</div>
+            </div>
+
+            <button type="submit" id="submitBtn">Create Account</button>
         </form>
 
-        <div class="registration-link">
-            Don't have an account? <a href="/register">Register here</a>
+        <div class="login-link">
+            Already have an account? <a href="/login">Sign in here</a>
         </div>
     </div>
 
     <script>
-        const form = document.getElementById("loginForm");
+        const form = document.getElementById("registerForm");
         const errorMessage = document.getElementById("errorMessage");
         const successMessage = document.getElementById("successMessage");
         const submitBtn = document.getElementById("submitBtn");
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput = document.getElementById("confirmPassword");
 
         function showError(message) {
             errorMessage.textContent = message;
@@ -194,15 +256,40 @@
             successMessage.classList.remove("show");
         }
 
+        
+        // Real-time password match checking
+        confirmPasswordInput.addEventListener('input', function() {
+            const password = passwordInput.value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                this.style.borderColor = '#ff6b6b';
+                showError("Passwords do not match");
+            } else if (confirmPassword && password === confirmPassword) {
+                this.style.borderColor = '#51cf66';
+                hideMessages();
+            } else {
+                this.style.borderColor = '#e0e0e0';
+            }
+        });
+
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             hideMessages();
 
             const username = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value;
+            const email = document.getElementById("email").value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const inviteCode = document.getElementById("inviteCode").value.trim().toUpperCase();
 
-            if (!username || !password || !securityQuestion) {
-                showError("Please fill in all fields");
+            if (!username || !email || !password || !confirmPassword || !inviteCode) {
+                showError("Please complete all the fields");
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError("Passwords do not match");
                 return;
             }
 
@@ -210,36 +297,45 @@
             form.classList.add("loading");
 
             try {
-                const response = await fetch("/api/auth/login", {
+                const response = await fetch("/api/auth/register", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
                         username: username,
+                        email: email,
                         password: password,
+                        inviteCode: inviteCode
                     }),
                 });
 
                 const data = await response.json();
 
-                if (response.ok && data.username) {
-                    showSuccess(`Welcome, ${data.username}! Redirecting...`);
-                    // Redirect after successful login
+                if (response.ok) {
+                    showSuccess("Account created successfully! Redirecting to login...");
+                    // Redirect to login page after successful registration
                     setTimeout(() => {
-                        window.location.href = "/";
-                    }, 1500);
+                        window.location.href = "/login";
+                    }, 2000);
                 } else {
-                    showError(data.message || data.error || "Login failed");
+                    showError(data.message || data.error || "Registration failed");
                 }
             } catch (error) {
-                showError("Network error. Please try again.");
-                console.error("Login error:", error);
+                showError("Network error. Please check your connection and try again.");
+                console.error("Registration error:", error);
             } finally {
                 submitBtn.disabled = false;
                 form.classList.remove("loading");
             }
         });
+
+        // Add password toggle functionality
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const type = input.type === 'password' ? 'text' : 'password';
+            input.type = type;
+        }
     </script>
 </body>
 

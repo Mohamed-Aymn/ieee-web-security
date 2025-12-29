@@ -35,7 +35,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       // Create session in database
       const sessionToken = await createSession(
         user._id.toString(),
-        user.username 
+        username 
       );
 
       // Set secure cookie manually

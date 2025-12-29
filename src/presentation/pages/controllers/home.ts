@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-export const showHomePage = async (req: Request, res: Response): Promise<void> => {
+export const showHomePageController = async (req: Request, res: Response): Promise<void> => {
 
   const response = await fetch("http://localhost:3000/api/me/getUserName", {
     headers: {

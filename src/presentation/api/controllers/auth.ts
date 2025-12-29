@@ -16,13 +16,13 @@ const getCookieOptions = () => {
 };
 
 
-export const login = async (req: Request, res: Response): Promise<Response> => {
+export const loginController = async (req: Request, res: Response): Promise<Response> => {
   const { username } = req.body;
 
   try {
     const user = await getDB()
       .collection("users")
-      .findOne({username: username});
+      .findOne({ username: username });
 
     if (!user) {
       return res.status(401).json({ message: "No user found" });
@@ -35,7 +35,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       // Create session in database
       const sessionToken = await createSession(
         user._id.toString(),
-        username 
+        username
       );
 
       // Set secure cookie manually
@@ -51,7 +51,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
   }
 };
 
-export const register = async (req: Request, res: Response): Promise<Response> => {
+export const registerController = async (req: Request, res: Response): Promise<Response> => {
   const { username, email, password, inviteCode } = req.body;
 
   try {
@@ -72,8 +72,8 @@ export const register = async (req: Request, res: Response): Promise<Response> =
     }
 
     // Check invite code
-    const inviteCodeDoc = await inviteCodesCollection.findOne({ 
-      code: inviteCode 
+    const inviteCodeDoc = await inviteCodesCollection.findOne({
+      code: inviteCode
     });
 
     if (!inviteCodeDoc) {
@@ -91,8 +91,8 @@ export const register = async (req: Request, res: Response): Promise<Response> =
       createdAt: new Date()
     });
 
-    return res.json({ 
-      success: true, 
+    return res.json({
+      success: true,
       username: username,
       userId: result.insertedId.toString()
     });
@@ -102,7 +102,7 @@ export const register = async (req: Request, res: Response): Promise<Response> =
   }
 };
 
-export const logout = async (req: Request, res: Response): Promise<Response> => {
+export const logoutController = async (req: Request, res: Response): Promise<Response> => {
   try {
     const token = req.cookies?.sessionId;
 
@@ -126,7 +126,7 @@ export const logout = async (req: Request, res: Response): Promise<Response> => 
   }
 };
 
-export const getSession = async (req: Request, res: Response): Promise<Response> => {
+export const getSessionController = async (req: Request, res: Response): Promise<Response> => {
   // Session is attached by optionalAuth middleware if valid
   if (req.session) {
     return res.json({

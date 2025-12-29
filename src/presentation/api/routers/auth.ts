@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { login, logout, getSession, register } from "../controllers/auth";
 import { optionalAuth } from "../../middleware/session";
+import { getSessionController, loginController, logoutController, registerController } from "../controllers/auth";
 
 const router = Router();
 
-router.post("/login", login);
-router.post("/register", register);
-router.post("/logout", logout);
-router.get("/session", optionalAuth, getSession);
+router.post("/login", loginController);
+router.post("/register", registerController);
+router.post("/logout", logoutController);
+router.get("/session", optionalAuth, getSessionController);
 
 export default router;

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
 
-export const showLoginPage = (req: Request, res: Response): void => {
+export const showLoginPageController = (req: Request, res: Response): void => {
   res.render('login');
 };
